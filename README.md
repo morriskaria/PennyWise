@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🇰🇪 SME Bookkeeping & Tax-Readiness SaaS
 
-## Getting Started
+A **production-grade, multi-tenant bookkeeping and tax-readiness platform** for Kenyan SMEs, designed to provide **accurate financial records**, **audit-ready reporting**, and **simplified tax preparation**.
 
-First, run the development server:
+This repository is both:
+- a **real SaaS product foundation**, and
+- a **learning-driven engineering guide** covering architecture, data modeling, security, compliance, and deployment.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📌 Why This Project Exists
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Kenyan SMEs struggle with:
+- Manual bookkeeping
+- Poor financial visibility
+- Stressful KRA compliance
+- Lack of audit-ready records
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This platform solves that by:
+- Enforcing **correct accounting flows**
+- Designing for **trust and traceability**
+- Supporting **accountants and SMEs together**
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🎯 Product Goals
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Enable SMEs to **track income and expenses accurately**
+2. Generate **tax-ready financial reports**
+3. Provide **audit-proof financial records**
+4. Support **accountants managing multiple clients**
+5. Scale safely as a **multi-tenant SaaS**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🧱 Technology Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Application
+- **Next.js (App Router)**
+- **TypeScript**
+- **React**
+- **Tailwind CSS**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Backend
+- **Next.js Server Actions + API Routes**
+- **PostgreSQL**
+- **Prisma ORM**
+
+### Infrastructure
+- **Vercel / Fly.io**
+- **Neon / Supabase / AWS RDS**
+- **Redis (later, for caching)**
+
+### Tooling
+- ESLint + Prettier
+- Vitest
+- Playwright
+- GitHub Actions (CI)
+
+---
+
+## 🧠 Architectural Principles
+
+- **Correctness over speed**
+- **Auditability over convenience**
+- **Explicit data modeling**
+- **No silent mutations**
+- **Multi-tenant from Day 1**
+
+---
+
+## 🧩 High-Level Architecture
+
