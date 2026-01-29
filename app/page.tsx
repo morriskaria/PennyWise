@@ -51,28 +51,6 @@ export default function Home() {
                 Book a Demo
               </button>
             </div>
-            <div className="relative max-w-6xl mx-auto">
-              <div className="absolute -inset-4 bg-gradient-to-b from-primary/10 to-transparent blur-3xl opacity-50 rounded-[3rem]"></div>
-              <div className="relative bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
-                <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-                  <div className="flex gap-1.5">
-                    <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                    <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  </div>
-                  <div className="bg-slate-200/50 rounded-md px-12 py-1 text-[10px] text-slate-400 uppercase tracking-widest font-bold">pennywise.ke/dashboard</div>
-                  <div className="w-12"></div>
-                </div>
-                <Image
-                  alt="Pennywise Dashboard Preview"
-                  className="w-full h-auto object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD296hw3yuN8Hq3sTbb5Nb_8mOPdXYAkvYrCvgAKK0xNY462AByW2Gkan6qBGrYsznIkG8VKqpHQ6SM_nvlvlE3mu8o53GFYfzqe4rClYskOz-48Z0K0V-UvmYTiKQye_z6BLH_dM-t_KDs0sPnzO0HQxtfS7i9d88Mc_GX9o-N6tCmHgRem0HHbIUO9G4KKtKGJ0ynAb_LVLOTNSTW9Vu5MsfwCbF6mzqsB9CzLksx-sWntr3nsneyON313oSqSi3fBqCCJFJLBg"
-                  width={1200}
-                  height={600}
-                  priority
-                />
-              </div>
-            </div>
           </div>
         </section>
 
