@@ -1,0 +1,28 @@
+<svg width="340" height="80" viewBox="0 0 340 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Option 2: The Balanced Pivot -->
+  <style>
+    .penny { 
+      font-family: 'Inter', sans-serif; 
+      font-weight: 800; 
+      font-style: italic; 
+      fill: #FFFFFF; 
+      font-size: 42px;
+    }
+    .wise { 
+      font-family: 'Inter', sans-serif; 
+      font-weight: 400; 
+      font-style: italic; 
+      fill: #FFFFFF; 
+      font-size: 42px;
+      opacity: 0.9;
+    }
+    .divider {
+      stroke: #FFFFFF;
+      stroke-width: 3;
+      opacity: 0.5;
+    }
+  </style>
+  <text x="10" y="55" class="penny">Penny</text>
+  <line x1="145" y1="20" x2="135" y2="60" class="divider" />
+  <text x="160" y="55" class="wise">Wise</text>
+</svg>
