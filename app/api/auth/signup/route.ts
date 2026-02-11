@@ -1,9 +1,22 @@
 import { signUpSchema } from "@/lib/validation";
 import { createUser } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
+import { isRateLimited, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting check
+    const clientIp = getClientIp(request);
+    if (isRateLimited(clientIp)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: 'Too many requests. Please try again later.',
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate input

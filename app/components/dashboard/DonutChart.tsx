@@ -2,15 +2,24 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts"
 
-const data = [
-    { name: "Rent", value: 400, color: "#15803d" },
-    { name: "Dining", value: 300, color: "#22c55e" },
-    { name: "Travel", value: 300, color: "#84cc16" },
-    { name: "Utilities", value: 200, color: "#06b6d4" },
-]
+interface DonutChartProps {
+    data?: Array<{
+        name: string;
+        value: number;
+        color: string;
+    }>;
+}
 
+export function DashboardDonutChart({ data = [] }: DonutChartProps) {
+    // Show empty state if no data
+    if (data.length === 0) {
+        return (
+            <div className="h-[300px] w-full flex items-center justify-center">
+                <p className="text-muted text-sm">No category data available</p>
+            </div>
+        );
+    }
 
-export function DashboardDonutChart() {
     return (
         <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">

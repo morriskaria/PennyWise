@@ -9,6 +9,9 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ThemeToggle } from './ui/theme-toggle';
 import { cn } from '@/lib/utils';
 
+import PennyWiseLogoImg from './PennyWiseLogoImg';
+import { LogoutButton } from './LogoutButton';
+
 interface HeaderProps {
   onMenuClick?: () => void;
 }
@@ -29,6 +32,12 @@ export default function Header({ onMenuClick }: HeaderProps) {
           <Menu className="size-5" />
         </Button>
 
+        {/* PennyWise Logo (image) */}
+        <div className="flex items-center mr-4 select-none">
+          <span className="block w-[160px] h-[48px]">
+            <PennyWiseLogoImg className="w-full h-full object-contain" />
+          </span>
+        </div>
         <div className="relative w-full max-w-md hidden sm:block">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted size-4" />
           <Input
@@ -42,11 +51,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
       </div>
 
       <div className="flex items-center gap-3 ml-4">
-        <Button variant="outline" size="sm" className="hidden md:flex gap-2 rounded-xl h-10 px-4 transition-all duration-200 ease-out">
-          <Calendar className="size-4 text-primary" />
-          <span className="text-xs italic font-bold tracking-tight text-foreground">Today: Oct 20, 2024</span>
-          <ChevronDown className="size-3 text-muted" />
-        </Button>
+        <LogoutButton />
 
         <div className="flex items-center gap-1 sm:gap-2">
           <ThemeToggle />

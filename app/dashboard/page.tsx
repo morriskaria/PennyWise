@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { DollarSign, ArrowUpRight, ArrowDownRight, CreditCard, Filter, Download } from 'lucide-react';
 import { KPICard } from '../components/dashboard/KPICard';
 import { DashboardLineChart } from '../components/dashboard/LineChart';
@@ -8,7 +9,117 @@ import { TransactionsTable } from '../components/dashboard/TransactionsTable';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 
+interface DashboardStats {
+  totalRevenue: string;
+  totalExpenses: string;
+  netProfit: string;
+  activeAccounts: number;
+}
+
+interface MonthlyData {
+  name: string;
+  income: number;
+  expenses: number;
+}
+
+interface CategoryData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  date: string;
+  description?: string;
+  category: {
+    name: string;
+  };
+}
+
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setLoading(true);
+
+        // Fetch all dashboard data in parallel
+        const [statsRes, monthlyRes, categoryRes, transactionsRes] = await Promise.all([
+          fetch('/api/dashboard/stats'),
+          fetch('/api/transactions/monthly'),
+          fetch('/api/transactions/by-category'),
+          fetch('/api/transactions?limit=5'),
+        ]);
+
+        if (!statsRes.ok || !monthlyRes.ok || !categoryRes.ok || !transactionsRes.ok) {
+          throw new Error('Failed to fetch dashboard data');
+        }
+
+        const [statsData, monthlyDataRes, categoryDataRes, transactionsData] = await Promise.all([
+          statsRes.json(),
+          monthlyRes.json(),
+          categoryRes.json(),
+          transactionsRes.json(),
+        ]);
+
+        setStats(statsData.data);
+        setMonthlyData(monthlyDataRes.data || []);
+        setCategoryData(categoryDataRes.data || []);
+        setTransactions(transactionsData.data?.transactions || []);
+      } catch (err: any) {
+        console.error('Dashboard data error:', err);
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 lg:p-10 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 lg:p-10">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <h3 className="text-red-800 dark:text-red-400 font-bold mb-2">Error Loading Dashboard</h3>
+          <p className="text-red-600 dark:text-red-400">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="mt-4"
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate revenue change (simplified - you can enhance this with historical data)
+  const revenueChange = stats ? '+20.1% from last month' : '';
+  const expenseChange = stats ? '+4.5% from last month' : '';
+  const profitChange = stats ? '+12.2% from last month' : '';
+
   return (
     <div className="p-6 lg:p-10 space-y-8 max-w-[1600px] mx-auto">
       {/* Header Section */}
@@ -29,34 +140,33 @@ export default function DashboardPage() {
         </div>
       </div>
 
-
       {/* KPI Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <KPICard
           title="Total Revenue"
-          value="$45,231.89"
-          change="+20.1% from last month"
+          value={`$${stats?.totalRevenue || '0.00'}`}
+          change={revenueChange}
           changeType="positive"
           icon={<DollarSign className="size-5" />}
         />
         <KPICard
           title="Total Expenses"
-          value="$12,350.00"
-          change="+4.5% from last month"
+          value={`$${stats?.totalExpenses || '0.00'}`}
+          change={expenseChange}
           changeType="negative"
           icon={<CreditCard className="size-5" />}
         />
         <KPICard
           title="Net Profit"
-          value="$32,881.89"
-          change="+12.2% from last month"
-          changeType="positive"
+          value={`$${stats?.netProfit || '0.00'}`}
+          change={profitChange}
+          changeType={parseFloat(stats?.netProfit || '0') >= 0 ? 'positive' : 'negative'}
           icon={<ArrowUpRight className="size-5" />}
         />
         <KPICard
           title="Active Accounts"
-          value="24"
-          change="+2 new this week"
+          value={stats?.activeAccounts.toString() || '0'}
+          change="Manage your accounts"
           changeType="neutral"
           icon={<ArrowDownRight className="size-5" />}
         />
@@ -78,7 +188,7 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="px-2">
-            <DashboardLineChart />
+            <DashboardLineChart data={monthlyData} />
           </CardContent>
         </Card>
 
@@ -88,7 +198,7 @@ export default function DashboardPage() {
             <CardDescription>Major expense categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <DashboardDonutChart />
+            <DashboardDonutChart data={categoryData} />
           </CardContent>
         </Card>
       </div>
@@ -105,7 +215,7 @@ export default function DashboardPage() {
           </Button>
         </CardHeader>
         <CardContent className="p-0">
-          <TransactionsTable />
+          <TransactionsTable transactions={transactions} />
         </CardContent>
       </Card>
 
