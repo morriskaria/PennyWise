@@ -4,21 +4,82 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
+interface FormData {
+  email: string;
+  password: string;
+  name?: string;
+  businessName?: string;
+  kraPin?: string;
+}
+
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState<FormData>({
+    email: '',
+    password: '',
+    name: '',
+    businessName: '',
+    kraPin: '',
+  });
   const router = useRouter();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+    setError(''); // Clear error when user starts typing
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simulate authentication - in production, this would call your auth API
-    setTimeout(() => {
-      setIsLoading(false);
-      // Redirect to dashboard after successful login
+    setError('');
+
+    try {
+      const endpoint = isLogin ? '/api/auth/signin' : '/api/auth/signup';
+      
+      // Prepare payload based on login/signup
+      const payload = isLogin
+        ? {
+            email: formData.email,
+            password: formData.password,
+          }
+        : {
+            email: formData.email,
+            password: formData.password,
+            name: formData.name || formData.businessName, // Use business name if provided
+          };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Authentication failed');
+        setIsLoading(false);
+        return;
+      }
+
+      // Store user info in localStorage or sessionStorage
+      // (In production, use cookies or proper session management)
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirect to dashboard after successful authentication
       router.push('/dashboard');
-    }, 1000);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,17 +169,38 @@ export default function AuthPage() {
           </div>
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+              </div>
+            )}
             {!isLogin && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <label className="flex flex-col">
                   <p className="text-[#111816] dark:text-slate-200 text-sm font-medium leading-normal pb-2">Full Name</p>
-                  <input className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" placeholder="e.g. Jane Doe" type="text" />
+                  <input 
+                    className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" 
+                    placeholder="e.g. Jane Doe" 
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required={!isLogin}
+                  />
                 </label>
                 {/* Business Name */}
                 <label className="flex flex-col">
                   <p className="text-[#111816] dark:text-slate-200 text-sm font-medium leading-normal pb-2">Business Name</p>
-                  <input className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" placeholder="Your SME Name" type="text" />
+                  <input 
+                    className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" 
+                    placeholder="Your SME Name" 
+                    type="text"
+                    name="businessName"
+                    value={formData.businessName}
+                    onChange={handleInputChange}
+                  />
                 </label>
               </div>
             )}
@@ -129,13 +211,28 @@ export default function AuthPage() {
                   <p className="text-[#111816] dark:text-slate-200 text-sm font-medium leading-normal">KRA PIN <span className="text-slate-400 font-normal">(Optional)</span></p>
                   <span className="text-[10px] bg-primary/10 text-primary font-bold px-2 py-0.5 rounded uppercase">Recommended</span>
                 </div>
-                <input className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" placeholder="A000000000Z" type="text" />
+                <input 
+                  className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" 
+                  placeholder="A000000000Z" 
+                  type="text"
+                  name="kraPin"
+                  value={formData.kraPin}
+                  onChange={handleInputChange}
+                />
               </label>
             )}
             {/* Email */}
             <label className="flex flex-col">
               <p className="text-[#111816] dark:text-slate-200 text-sm font-medium leading-normal pb-2">Email Address</p>
-              <input className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" placeholder="email@example.com" type="email" />
+              <input 
+                className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" 
+                placeholder="email@example.com" 
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
             </label>
             {/* Password */}
             <label className="flex flex-col">
@@ -144,7 +241,16 @@ export default function AuthPage() {
                 {isLogin && <a className="text-xs text-primary font-bold hover:underline" href="#">Forgot?</a>}
               </div>
               <div className="relative">
-                <input className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" placeholder="Min. 8 characters" type="password" />
+                <input 
+                  className="form-input w-full rounded-lg text-[#111816] focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#dbe6e2] dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-primary h-12 placeholder:text-slate-400 p-[15px] text-sm" 
+                  placeholder="Min. 8 characters" 
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  minLength={8}
+                />
                 <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 cursor-pointer text-xl">visibility_off</span>
               </div>
             </label>
