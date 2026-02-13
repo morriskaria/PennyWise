@@ -60,7 +60,7 @@ export const invoiceAPI = {
   },
 };
 
-// Business Profile APIs
+// Business Profile API
 export const businessProfileAPI = {
   async get(userId: string) {
     return apiCall(`/business-profile?userId=${userId}`);
