@@ -19,10 +19,15 @@ model User {
   updatedAt DateTime   @updatedAt
 
   // Relations
-  accounts      Account[]
-  transactions  Transaction[]
-  categories    Category[]
-  budgets       Budget[]
+  accounts          Account[]
+  transactions      Transaction[]
+  categories        Category[]
+  budgets           Budget[]
+  businessProfile   BusinessProfile?
+  invoices          Invoice[]
+  auditLogs         AuditLog[]
+  integrations      Integration[]
+  teamMembers       TeamMember[]
 
   @@index([email])
 }
@@ -110,4 +115,158 @@ model Budget {
   @@unique([userId, categoryId, month, year])
   @@index([userId])
   @@index([categoryId])
+}
+
+// Business Profile Model
+model BusinessProfile {
+  id                  String    @id @default(cuid())
+  userId              String    @unique
+  businessName        String
+  businessEmail       String
+  registrationNumber  String?
+  kraPin              String?
+  phoneNumber         String?
+  address             String?
+  city                String?
+  state               String?
+  postalCode          String?
+  country             String?
+  isVatRegistered     Boolean   @default(false)
+  logo                String?   // URL to logo
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// Invoice Model
+model Invoice {
+  id              String    @id @default(cuid())
+  userId          String
+  invoiceNumber   String
+  clientName      String
+  clientEmail     String?
+  clientPhone     String?
+  issueDate       DateTime
+  dueDate         DateTime?
+  amount          Decimal   @db.Decimal(12, 2)
+  status          String    @default("draft") // "draft", "pending", "paid", "overdue"
+  description     String?
+  notes           String?
+  paymentTerms    String?
+  paymentMethod   String?
+  paidDate        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           InvoiceItem[]
+  payments        Payment[]
+
+  @@unique([userId, invoiceNumber])
+  @@index([userId])
+  @@index([status])
+  @@index([issueDate])
+}
+
+// Invoice Items Model
+model InvoiceItem {
+  id          String    @id @default(cuid())
+  invoiceId   String
+  description String
+  quantity    Int       @default(1)
+  unitPrice   Decimal   @db.Decimal(10, 2)
+  total       Decimal   @db.Decimal(12, 2)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+// Payment Model
+model Payment {
+  id          String    @id @default(cuid())
+  invoiceId   String
+  amount      Decimal   @db.Decimal(12, 2)
+  paymentDate DateTime
+  method      String    // "mpesa", "bank", "cash", "cheque"
+  reference   String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  invoice     Invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([paymentDate])
+}
+
+// Audit Log Model
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String
+  action      String    // "create", "update", "delete", "export", "login"
+  entityType  String    // "invoice", "settings", "user", etc.
+  entityId    String?
+  details     String?   // JSON details of changes
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([timestamp])
+  @@index([action])
+}
+
+// Integration Model
+model Integration {
+  id              String    @id @default(cuid())
+  userId          String
+  name            String    // "mpesa", "bank_feeds", "kra_itax", etc.
+  status          String    @default("inactive") // "active", "inactive", "pending"
+  config          String?   // JSON configuration data (encrypted)
+  apiKey          String?   // Encrypted API key
+  apiSecret       String?   // Encrypted API secret
+  lastSyncDate    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@index([status])
+}
+
+// Team Member Model
+model TeamMember {
+  id              String    @id @default(cuid())
+  userId          String    // Owner/Admin user
+  email           String
+  name            String
+  role            String    @default("staff") // "admin", "accountant", "staff"
+  permissions     String?   // JSON object of permissions
+  isActive        Boolean   @default(true)
+  invitedDate     DateTime  @default(now())
+  joinedDate      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, email])
+  @@index([userId])
 }

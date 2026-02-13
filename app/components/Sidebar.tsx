@@ -12,7 +12,7 @@ const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { href: '/dashboard/reports', label: 'Reports', icon: 'bar_chart' },
   { href: '/dashboard/invoices', label: 'Invoices', icon: 'receipt_long' },
-  { href: '/dashboard/settings', label: 'Settings', icon: 'settings' },
+  { href: '/settings', label: 'Settings', icon: 'settings' },
 ];
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
@@ -39,7 +39,9 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
           {navItems.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            const isActive = item.href === '/dashboard' 
+              ? pathname === '/dashboard' 
+              : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

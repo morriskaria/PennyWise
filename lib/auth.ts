@@ -1,5 +1,5 @@
 import { hash, compare } from "bcrypt";
-import prisma from "./prisma";
+import { prisma } from "./prisma";
 
 // Hash password before storing
 export async function hashPassword(password: string): Promise<string> {
