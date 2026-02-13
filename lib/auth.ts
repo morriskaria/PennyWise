@@ -1,5 +1,6 @@
 import { hash, compare } from "bcrypt";
-import { prisma } from "./prisma";
+import prisma from "./prisma";
+import { Session } from "next-auth"; // Import the Session type
 
 // Hash password before storing
 export async function hashPassword(password: string): Promise<string> {
@@ -56,3 +57,32 @@ export async function signInUser(email: string, password: string) {
 
   return user;
 }
+
+/**
+ * Get the current session (server-side)
+ * @returns Current session or null if not authenticated
+ */
+export async function getServerSession(): Promise<Session | null> {
+  // This will be implemented with NextAuth's getServerSession
+  // For now, this is a placeholder
+  // Import { getServerSession as nextAuthGetServerSession } from 'next-auth';
+  // Import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+  // Return nextAuthGetServerSession(authOptions);
+  return null;
+}
+
+/**
+ * Require authentication for API routes
+ * Throws error if not authenticated
+ * @returns User session
+ */
+export async function requireAuth() {
+  const session = await getServerSession();
+
+  if (!session || !session.user) {
+    throw new Error('Unauthorized');
+  }
+
+  return session;
+}
+

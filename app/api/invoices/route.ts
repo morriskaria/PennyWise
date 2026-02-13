@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 import { invoiceSchema, updateInvoiceSchema } from "@/lib/validation";
 
 // GET all invoices for a user
